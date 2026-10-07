@@ -114,7 +114,6 @@ The example demonstrates formatting only; it is not an experimental result.
 ```text
 urban-air-pollution-controller/
 ├── README.md
-├── resume_project_entry.md
 ├── docs/
 │   ├── WIRING.md
 │   └── images/
