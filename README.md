@@ -4,7 +4,7 @@ An ESP32-based monitoring, airflow-control, and data-logging subsystem developed
 
 ![Platform](https://img.shields.io/badge/platform-ESP32-000000?style=flat-square) ![Language](https://img.shields.io/badge/language-C%2B%2B-00599C?style=flat-square) ![Interfaces](https://img.shields.io/badge/interfaces-I2C%20%7C%20SPI%20%7C%20UART-2F855A?style=flat-square) ![Status](https://img.shields.io/badge/status-hardware%20prototype-D97706?style=flat-square)
 
-![Complete pollution-generation and exposure-chamber prototype](docs/images/exposure-system.png)
+![Complete pollution-generation and exposure-chamber prototype](docs/images/exposure-system.jpg)
 
 > Portfolio scope: I engineered and integrated the electronics, wiring, chamber interconnections, blower-control hardware, safeguards, and embedded firmware. The collaborating M.Pharm researcher conducted the animal exposure work and biological testing. No biological results or claims are presented in this repository.
 
@@ -140,17 +140,17 @@ urban-air-pollution-controller/
 
 ### ESP32 controller
 
-![ESP32 development board used in the prototype](docs/images/esp32-controller.png)
+![ESP32 development board used in the prototype](docs/images/esp32-controller.jpg)
 
 ### Live LCD reading
 
-![LCD showing PM10, temperature and humidity](docs/images/lcd-reading.png)
+![LCD showing PM10, temperature and humidity](docs/images/lcd-reading.jpg)
 
 ### Timing and storage modules
 
 | DS3231 real-time clock | MicroSD data logger |
 |---|---|
-| ![DS3231 real-time-clock module](docs/images/rtc-module.png) | ![SPI microSD module](docs/images/microsd-module.png) |
+| ![DS3231 real-time-clock module](docs/images/rtc-module.jpg) | ![SPI microSD module](docs/images/microsd-module.jpg) |
 
 
 

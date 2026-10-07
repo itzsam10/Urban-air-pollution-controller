@@ -1,0 +1,19 @@
+# Arduino and PlatformIO build outputs
+build/
+.pio/
+*.bin
+*.elf
+*.hex
+*.map
+
+# Local IDE and operating-system files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Local data captures should not be committed accidentally
+air_data.csv
+*.log
+
+
