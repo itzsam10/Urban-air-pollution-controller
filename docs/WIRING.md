@@ -39,7 +39,7 @@ Do not connect a 5 V logic output directly to an ESP32 input. Verify that the se
 
 Power the module according to its design. A board with a regulator and level shifting may accept 5 V power; a bare 3.3 V module must not. Its logic presented to the ESP32 must remain 3.3 V-compatible.
 
-### MOSFET and centrifugal blower
+### MOSFET and Chamber 1 fresh-air blower
 
 | Connection | Destination |
 |---|---|
@@ -49,7 +49,9 @@ Power the module according to its design. A board with a regulator and level shi
 | Blower negative | MOSFET switched load terminal, according to the module labels |
 | External supply negative | MOSFET power ground/common ground |
 
-The blower must use an external supply matching its rated voltage and current. Never power the blower from the ESP32's 3.3 V or 5 V pin.
+The PWM-controlled blower is part of the Chamber 1 filtered-air path. It must use an external supply matching its rated voltage and current. Never power the blower from the ESP32's 3.3 V or 5 V pin.
+
+The mixing/circulation fan associated with Chamber 2 should use its own correctly rated supply or driver. No separate ESP32 control pin for that fan is documented in the supplied firmware.
 
 ## Protection and assembly notes
 
@@ -60,7 +62,7 @@ The blower must use an external supply matching its rated voltage and current. N
 - Use a common reference ground, short ground returns, and adequate wire gauge for the load current.
 - Add strain relief at chamber wall penetrations and protect wiring from sharp edges, moisture, animal access, and moving fan parts.
 - Place exposed electronics outside the animal/exposure space or inside a suitable enclosure.
-- Verify airflow direction before enabling automatic control. The firmware defaults to a blower that supplies polluted air; an exhaust/dilution blower requires the opposite fault response and may require reversed control logic.
+- Verify airflow direction and driver polarity before enabling automatic control. Confirm experimentally whether a larger PWM value increases or decreases filtered-air delivery from Chamber 1.
 
 ## Recommended bring-up sequence
 
@@ -68,7 +70,15 @@ The blower must use an external supply matching its rated voltage and current. N
 2. Power the ESP32 and low-voltage sensors without the blower connected; verify UART, I2C, LCD, RTC, and SD operation.
 3. Test the external blower and MOSFET from a current-limited supply, keeping the chamber disconnected.
 4. Join the grounds and verify the PWM command at low duty before increasing load.
-5. Connect the airflow path and confirm that increased blower duty changes chamber concentration in the expected direction.
+5. Connect Chamber 1 to the filtered-air inlet of Chamber 2 and confirm how the PWM command changes airflow and Chamber 3 particulate concentration.
 6. Validate the configured fault state by disconnecting the PMS data lead and confirming that the system responds safely.
+
+## Chamber placement
+
+- **Chamber 1:** filtered ambient-air intake and PWM-controlled airflow stage.
+- **Chamber 2:** three-port mixing chamber with diesel-exhaust inlet, filtered-air inlet, and mixed-stream outlet.
+- **Chamber 3:** exposure chamber containing the particulate and environmental measurement points.
+
+The PMS5003 and SHT31 should sample representative Chamber 3 air without being placed directly in a high-velocity inlet jet. Electronics and exposed conductors should remain outside the occupied chamber volume.
 
 
