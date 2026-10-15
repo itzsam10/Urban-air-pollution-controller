@@ -65,5 +65,5 @@ The supplied thresholds command 100% blower below 500 µg/m³, then 60%, 40%, an
 
 The installed PMS5003 measures particulate mass concentration; it does not directly measure toxicity or identify the chemical composition of the exhaust. The SHT31 measures only temperature and relative humidity. Diesel-exhaust gases such as carbon monoxide, carbon dioxide, and nitrogen oxides are outside the measurement capability of the documented prototype and would require separate sensors and validation.
 
-The displayed thresholds are prototype configuration values rather than universal exposure or safety limits. The PMS5003 does not directly measure toxicity or diesel exhaust gases. Any reuse requires verification of chamber airflow, PWM polarity, sensor calibration, study requirements, and applicable laboratory and ethics approvals.
+The displayed thresholds are prototype configuration values rather than universal exposure or safety limits. Any reuse requires verification of chamber airflow, PWM polarity, sensor calibration, study requirements, and applicable laboratory and ethics approvals.
 
