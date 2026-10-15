@@ -1,22 +1,21 @@
 # ESP32 Urban Air Pollution Exposure Chamber Controller
 
-An ESP32-based monitoring, airflow-control, and data-logging subsystem developed for an interdisciplinary M.Pharm particulate-exposure project. The three-chamber setup combines filtered ambient air with diesel-engine exhaust, delivers the mixed stream to an exposure chamber, and records particulate and environmental conditions during operation.
+An ESP32-based particulate-monitoring and airflow-control setup built to support a friend's M.Pharm research project. Filtered ambient air from Chamber 1 and diesel-engine exhaust enter Chamber 2, where a fan helps mix the streams. The mixed airflow then moves to Chamber 3 for exposure monitoring.
 
 ![Platform](https://img.shields.io/badge/platform-ESP32-000000?style=flat-square) ![Language](https://img.shields.io/badge/language-C%2B%2B-00599C?style=flat-square) ![Interfaces](https://img.shields.io/badge/interfaces-I2C%20%7C%20SPI%20%7C%20UART-2F855A?style=flat-square) ![Status](https://img.shields.io/badge/status-hardware%20prototype-D97706?style=flat-square)
 
 ![Complete pollution-generation and exposure-chamber prototype](docs/images/exposure-system.jpg)
 
-> Portfolio scope: I engineered and integrated the electronics, wiring, chamber interconnections, blower-control hardware, safeguards, and embedded firmware. The collaborating M.Pharm researcher conducted the animal exposure work and biological testing. No biological results or claims are presented in this repository.
+> My role: I am a 7th-semester Electronics and Communication Engineering student at East Point College of Engineering and Technology, Bengaluru. I helped a friend in M.Pharm automate the setup by completing electronics integration, ESP32 connections, wiring, the PWM blower interface, chamber interconnections, and electrical safeguards. My friend conducted the animal exposure and biological testing.
 
 ## My contribution
 
-- Integrated the ESP32 with a PMS5003 particulate sensor, SHT31 temperature/humidity sensor, DS3231 real-time clock, 16x2 I2C LCD, and microSD module.
-- Wired and configured the MOSFET-based PWM interface for the external centrifugal blower without powering the load from the ESP32.
-- Connected the filtered-air, exhaust-mixing, and exposure chambers through the airflow path used by the research prototype.
-- Added common-ground, load-isolation, fuse, flyback/surge-protection, logic-level, and strain-relief considerations to the electrical design.
-- Developed firmware to read PM1.0, PM2.5, PM10, temperature, and humidity; validate PMS frames by checksum; display the selected PM fraction; and record timestamped CSV data every two seconds.
-- Implemented configurable PM2.5/PM10 operating modes and a defined sensor-fault response for the blower.
-- Delivered the integrated prototype to the M.Pharm collaborator for experimental testing and biological analysis.
+- Integrated the ESP32 with the PMS5003 particulate sensor, SHT31 temperature/humidity sensor, DS3231 real-time clock, 16x2 I2C LCD, and microSD module.
+- Completed the ESP32-to-module signal wiring for UART, I2C, and SPI, and connected GPIO 25 PWM through the MOSFET blower driver.
+- Connected the three chambers: filtered-air intake, exhaust/fresh-air mixing, and exposure monitoring.
+- Completed the electronics and safety wiring for the assembled prototype. See the wiring guide for the pin map and recommended checks.
+- Integrated the hardware with the single ESP32 sketch used by the prototype for particulate/environmental readings, LCD display, and timestamped SD-card logging.
+- Handed the electronics subsystem to my friend for the research exposure and biological testing.
 
 ## System architecture
 
@@ -26,8 +25,8 @@ flowchart LR
     B --> C[Chamber 1\nFiltered-air intake]
     D[Diesel engine exhaust] --> E[Chamber 2\nThree-port mixing chamber]
     C -->|Filtered fresh air| E
-    F[Mixing and transfer airflow] --> E
-    E -->|Diluted mixed exhaust| G[Chamber 3\nExposure chamber]
+    E -->|Mixed airflow| G[Chamber 3\nExposure chamber]
+    E -. circulation fan .-> E
     G -. chamber sample .-> H[PMS5003\nPM1.0 PM2.5 PM10]
     G -. chamber environment .-> I[SHT31\nTemperature and humidity]
     H --> J[ESP32 controller]
@@ -41,15 +40,15 @@ flowchart LR
 
 ### How the system works
 
-1. **Chamber 1 prepares the fresh-air stream.** Ambient air enters through filter paper and is moved toward Chamber 2 by the PWM-controlled airflow path.
+1. **Chamber 1 prepares the fresh-air stream.** Ambient air enters through filter paper. Its airflow is controlled by the PWM-driven blower connected through the MOSFET interface.
 2. **The diesel engine provides the pollution stream.** Engine exhaust enters Chamber 2 through a separate inlet.
-3. **Chamber 2 combines both inputs.** It has three airflow connections: one diesel-exhaust inlet, one filtered-air inlet, and one mixed-air outlet. Fans/blowers promote mixing and transfer.
+3. **Chamber 2 combines both inputs.** It has two inlets—diesel exhaust and filtered ambient air—and one outlet for the mixed stream. A fan in this chamber helps mix the gases.
 4. **The mixed stream enters Chamber 3.** This is the controlled exposure chamber used by the collaborating researcher.
 5. **Sensors measure Chamber 3 conditions.** The PMS5003 measures PM1.0, PM2.5, and PM10; the SHT31 measures temperature and relative humidity.
 6. **The ESP32 processes and records the measurements.** It displays live values, adds the DS3231 timestamp, and stores a CSV record on the microSD card every two seconds.
-7. **The particulate reading provides feedback for PWM airflow control.** The firmware applies the configured stepwise blower command through the MOSFET driver.
+7. **The particulate reading provides feedback for PWM airflow control.** The ESP32 applies the programmed blower command through the MOSFET driver. The threshold response is documented below as it appears in the supplied sketch; confirm it matches the intended filtered-air control before reuse.
 
-The PMS5003 measures particulate concentration; it does not directly measure biological toxicity. In this prototype, PM concentration is the feedback variable used to represent the exposure level. See [docs/SYSTEM_ARCHITECTURE.md](docs/SYSTEM_ARCHITECTURE.md) for the full airflow, sensing, and control description.
+The PMS5003 measures particulate concentration; it does not directly measure biological toxicity or diesel exhaust gases. PM concentration from Chamber 3 is the feedback variable used by the controller. See [docs/SYSTEM_ARCHITECTURE.md](docs/SYSTEM_ARCHITECTURE.md) for the full airflow, sensing, and control description.
 
 ## Hardware
 
@@ -63,7 +62,8 @@ The PMS5003 measures particulate concentration; it does not directly measure bio
 | MicroSD module | CSV data storage |
 | MOSFET switching module | PWM interface between ESP32 and blower |
 | Filter paper | Filters the ambient-air intake before Chamber 1 |
-| Fans and centrifugal blower | Move filtered air, mix both input streams, and transfer the mixture between chambers |
+| PWM-driven blower | Moves filtered ambient air from Chamber 1 toward Chamber 2 |
+| Chamber 2 fan | Mixes incoming filtered air and diesel exhaust before transfer to Chamber 3 |
 | Chamber 1 | Filtered ambient-air intake and PWM airflow stage |
 | Chamber 2 | Three-port diesel-exhaust and fresh-air mixing stage |
 | Chamber 3 | Exposure, particulate sensing, and environmental monitoring stage |
@@ -86,26 +86,20 @@ See [docs/WIRING.md](docs/WIRING.md) for power, grounding, and protection notes.
 
 ## Firmware behavior
 
-The portfolio firmware in [`firmware/air_quality_controller/air_quality_controller.ino`](firmware/air_quality_controller/air_quality_controller.ino):
+The repository contains one sketch, copied from the supplied PM2.5-display program. It reads PM1.0, PM2.5, and PM10 from the PMS sensor, displays PM2.5 with temperature and humidity, applies its PM2.5 threshold profile to the PWM blower, and logs readings with RTC date/time to microSD every two seconds. The sketch replaces invalid PM and SHT31 readings with zero, so a zero in the log can indicate a sensor or frame problem rather than a confirmed zero concentration.
 
-1. Initializes the UART, I2C, SPI, SD card, RTC, LCD, and PWM output.
-2. Reads and checksum-validates a 32-byte PMS5003 frame.
-3. Reads temperature and humidity without replacing failed readings with false zero values.
-4. Selects PM2.5 or PM10 as the displayed/control variable through one configuration setting.
-5. Applies the prototype's documented stepwise PWM profile to the chamber airflow control.
-6. Moves the blower to a configured fault state when particulate data are invalid.
-7. Writes date, time, operating mode, PM values, temperature, humidity, sensor status, and blower percentage to CSV every two seconds.
+The supplied PM10-display program had the same PM2.5 blower thresholds and differed in which PM value it displayed. The repository keeps one representative sketch instead of duplicating nearly identical files.
 
 ### Prototype blower profile
 
-| Selected PM reading | Blower command |
+| PM2.5 reading | Blower command in supplied sketch |
 |---:|---:|
 | Below 500 µg/m³ | 100% |
 | 500-675 µg/m³ | 60% |
 | 676-699 µg/m³ | 40% |
 | 700 µg/m³ or above | 20% |
 
-These bands came from the supplied prototype program. They are not universal exposure limits or validated biological setpoints. They must be reviewed against the experimental protocol, airflow direction, chamber volume, and sensor calibration before reuse.
+These bands came from the supplied sketch. Because the PWM blower supplies filtered fresh air, the programmed profile commands less airflow at higher PM2.5 readings. Confirm that this response and the MOSFET module polarity match the intended Chamber 3 control behavior before operating or reusing the system. The bands are prototype settings, not universal exposure limits or validated biological setpoints.
 
 ## Build requirements
 
@@ -115,13 +109,13 @@ These bands came from the supplied prototype program. They are not universal exp
 - `RTClib`
 - ESP32 `SD`, `SPI`, and `Wire` libraries
 
-Set `ACTIVE_MODE` to `ExposureMode::PM25` or `ExposureMode::PM10` near the top of the firmware. Before operating the chamber, confirm the actual MOSFET/PWM polarity and verify how increasing the command changes filtered-air flow and Chamber 3 concentration.
+The sketch uses the PM2.5-display variant. The original PM10-display variant is not included because its control logic is otherwise the same. Verify the actual MOSFET/PWM polarity and intended airflow response before reuse.
 
 ## Example CSV schema
 
 ```text
-Date,Time,Exposure_Mode,PM1.0_ug_m3,PM2.5_ug_m3,PM10_ug_m3,Temperature_C,Humidity_pct,PMS_Valid,Blower_Speed_pct
-2026-01-15,10:30:02,PM2.5,342,518,601,29.3,73.0,1,60
+Date,Time,PM1.0(ug/m3),PM2.5(ug/m3),PM10(ug/m3),Temperature(C),Humidity(%),Blower_Speed(%)
+'2026-01-15','10:30:02',342,518,601,29.3,73,60%
 ```
 
 The example demonstrates formatting only; it is not an experimental result.
@@ -143,8 +137,7 @@ urban-air-pollution-controller/
 ## Project status and limitations
 
 - The original electronics were assembled and handed over as a working research prototype.
-- The repository contains one consolidated and documented firmware file with a configurable PM2.5/PM10 mode.
-- The consolidated firmware has not been independently re-tested on the original hardware after the prototype handoff.
+- The repository contains one source sketch copied from the supplied PM2.5-display program. I did not conduct the M.Pharm testing; my friend tested the research setup.
 - Optical PM readings can be affected by humidity and aerosol composition. Chamber measurements require calibration and validation against the research method.
 - Diesel exhaust can contain gases that the installed PMS5003 and SHT31 do not measure, including carbon monoxide, carbon dioxide, and nitrogen oxides. These variables require separate instrumentation if they are part of the approved study method.
 - This repository does not contain animal data, biomarker results, histopathology, or claims about CYP1A2 effects.
