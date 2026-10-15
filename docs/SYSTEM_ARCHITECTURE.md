@@ -2,7 +2,7 @@
 
 ## Purpose
 
-The prototype creates a controlled particulate-exposure stream by combining diesel-engine exhaust with filtered ambient air. The mixed stream is delivered to a third chamber, where particulate concentration, temperature, and humidity are measured and logged.
+The prototype routes filtered ambient air and diesel-engine exhaust through three chambers. The two streams meet in Chamber 2, where a fan mixes them before the combined airflow enters Chamber 3. Particulate concentration, temperature, and humidity are monitored in the exposure chamber.
 
 ## Airflow path
 
@@ -12,13 +12,14 @@ flowchart LR
     B --> C[Chamber 1\nFiltered-air intake]
     D[Diesel engine] -->|Combustion exhaust| E[Chamber 2\nMixing chamber]
     C -->|Filtered fresh air| E
-    E -->|Mixed and diluted exhaust| F[Chamber 3\nExposure chamber]
+    E -->|Mixed airflow| F[Chamber 3\nExposure chamber]
+    E -. mixing fan .-> E
     F --> G[Outlet or controlled exhaust path]
 ```
 
 ### Chamber 1 filtered-air stage
 
-Chamber 1 receives air from the surrounding environment through filter paper. Its airflow path provides filtered fresh air to Chamber 2. The external fan or centrifugal blower is driven through a MOSFET using an ESP32 PWM signal.
+Chamber 1 receives air from the surrounding environment through filter paper. The filtered-air path continues to Chamber 2. A blower in this path is driven through a MOSFET by the ESP32 PWM output.
 
 ### Chamber 2 mixing stage
 
@@ -28,7 +29,7 @@ Chamber 2 has three principal airflow ports:
 2. Filtered-air inlet from Chamber 1.
 3. Mixed-stream outlet to Chamber 3.
 
-The incoming combustion exhaust and filtered air are mixed before transfer to the exposure chamber. Fans/blowers support circulation and movement through this stage.
+The incoming combustion exhaust and filtered air are mixed in Chamber 2. A fan in this chamber supports mixing; the mixed stream exits through the third connection toward Chamber 3.
 
 ### Chamber 3 exposure and measurement stage
 
@@ -56,11 +57,13 @@ flowchart RL
     I -. airflow feedback .-> A
 ```
 
-The firmware samples the chamber every two seconds. A checksum-validated PMS frame supplies the particulate readings, while the SHT31 supplies environmental conditions. The ESP32 selects PM2.5 or PM10 as the configured control/display variable, applies the stepwise PWM profile, updates the LCD, and appends the complete record to the SD card.
+The supplied sketch samples every two seconds. The PMS5003 frame supplies PM1.0, PM2.5, and PM10 readings, while the SHT31 supplies temperature and relative humidity. The PM2.5-display sketch uses PM2.5 to select the stepwise PWM command, displays PM2.5 and environmental readings on the LCD, and records the values with the DS3231 timestamp on the microSD card. The alternate supplied sketch changed the displayed PM fraction to PM10 while retaining the PM2.5-based blower thresholds; only one representative sketch is included in this repository.
+
+The supplied thresholds command 100% blower below 500 µg/m³, then 60%, 40%, and 20% as PM2.5 rises across the configured bands. Since the blower is described as supplying filtered ambient air from Chamber 1, this response reduces the fresh-air command as PM rises. Verify the intended control direction and the MOSFET module's polarity before relying on this profile.
 
 ## Measurement boundary
 
 The installed PMS5003 measures particulate mass concentration; it does not directly measure toxicity or identify the chemical composition of the exhaust. The SHT31 measures only temperature and relative humidity. Diesel-exhaust gases such as carbon monoxide, carbon dioxide, and nitrogen oxides are outside the measurement capability of the documented prototype and would require separate sensors and validation.
 
-The displayed thresholds are prototype configuration values rather than universal exposure or safety limits. Any reuse requires verification of chamber airflow, PWM polarity, sensor calibration, study requirements, and the applicable laboratory and ethics approvals.
+The displayed thresholds are prototype configuration values rather than universal exposure or safety limits. The PMS5003 does not directly measure toxicity or diesel exhaust gases. Any reuse requires verification of chamber airflow, PWM polarity, sensor calibration, study requirements, and applicable laboratory and ethics approvals.
 
