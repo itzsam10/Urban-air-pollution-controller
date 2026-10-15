@@ -104,6 +104,7 @@ These bands came from the supplied sketch. Because the PWM blower supplies filte
 ## Build requirements
 
 - ESP32 board package for Arduino
+- ESP32 Arduino core 3.x (`ledcAttach` / pin-based `ledcWrite` API)
 - `LiquidCrystal_I2C`
 - `Adafruit SHT31 Library`
 - `RTClib`
