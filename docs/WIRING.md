@@ -2,6 +2,12 @@
 
 This document describes the connection plan represented by the supplied firmware and photographs. Confirm every module's printed voltage rating and pin labels before applying power.
 
+## Chamber airflow connections
+
+1. **Chamber 1:** ambient air enters through filter paper. The ESP32 PWM output controls the MOSFET interface for the blower in the filtered-air path toward Chamber 2.
+2. **Chamber 2:** two inlets receive diesel-engine exhaust and filtered air from Chamber 1. A fan inside the chamber mixes the streams. A third port carries the mixture to Chamber 3.
+3. **Chamber 3:** the exposure chamber. The PMS5003 and SHT31 sample particulate concentration, temperature, and humidity here; the ESP32 records these values with the RTC time to microSD.
+
 ## Signal connections
 
 ### Shared I2C bus
@@ -62,7 +68,7 @@ The mixing/circulation fan associated with Chamber 2 should use its own correctl
 - Use a common reference ground, short ground returns, and adequate wire gauge for the load current.
 - Add strain relief at chamber wall penetrations and protect wiring from sharp edges, moisture, animal access, and moving fan parts.
 - Place exposed electronics outside the animal/exposure space or inside a suitable enclosure.
-- Verify airflow direction and driver polarity before enabling automatic control. Confirm experimentally whether a larger PWM value increases or decreases filtered-air delivery from Chamber 1.
+- Verify airflow direction and driver polarity before enabling automatic control. The supplied sketch commands lower PWM percentages at higher PM2.5 readings; confirm this is the intended response for the filtered-air blower.
 
 ## Recommended bring-up sequence
 
@@ -71,7 +77,7 @@ The mixing/circulation fan associated with Chamber 2 should use its own correctl
 3. Test the external blower and MOSFET from a current-limited supply, keeping the chamber disconnected.
 4. Join the grounds and verify the PWM command at low duty before increasing load.
 5. Connect Chamber 1 to the filtered-air inlet of Chamber 2 and confirm how the PWM command changes airflow and Chamber 3 particulate concentration.
-6. Validate the configured fault state by disconnecting the PMS data lead and confirming that the system responds safely.
+6. Confirm the sensor and blower behavior with the supervising researcher before using the chamber.
 
 ## Chamber placement
 
